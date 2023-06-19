@@ -1,0 +1,399 @@
+import pandas as pd
+import random
+import time
+
+# Introduction to the game
+
+eplteams = ['Arsenal', 'Aston Villa', 'Brighton', 'Brentford', 'Bournemouth', 'Chelsea', 'Crystal Palace',
+            'Everton', 'Fulham', 'Leeds Utd', 'Leicester City', 'Liverpool',
+            'Manchester Utd', 'Manchester City', 'Newcastle Utd', 'Nottingham Forest',
+            'Southampton', 'Tottenham Hotspur', 'West Ham Utd', 'Wolves']
+
+epl_ratings = {'Arsenal': [83, 82, 83], 'Aston Villa': [80, 79, 83], 'Brighton': [80, 79, 78], 'Brentford': [77, 75, 78],
+               'Bournemouth': [76, 75, 75], 'Chelsea': [82, 82, 81], 'Crystal Palace': [78, 77, 76],
+               'Everton': [77, 76, 80], 'Fulham': [79, 77, 79], 'Leeds Utd': [75, 75, 75], 'Leicester City': [77, 76, 77],
+               'Liverpool': [85, 82, 87], 'Manchester Utd': [84, 84, 84], 'Manchester City': [86, 84, 87],
+               'Newcastle Utd': [80, 83, 82], 'Nottingham Forest': [75, 77, 82], 'Southampton': [76, 74, 75],
+               'Tottenham Hotspur': [85, 79, 80], 'West Ham Utd': [79, 79, 79], 'Wolves': [77, 77, 77]}
+
+eplmapping = {
+    'Arsenal': 'arsenal',
+    'Aston Villa': 'astonvilla',
+    'Brighton': 'brighton',
+    'Brentford': 'brentford',
+    'Bournemouth': 'bournemouth',
+    'Chelsea': 'chelsea',
+    'Crystal Palace': 'crystalpalace',
+    'Everton': 'everton',
+    'Fulham': 'fulham',
+    'Leeds Utd': 'leeds',
+    'Leicester City': 'leicester',
+    'Liverpool': 'liverpool',
+    'Manchester Utd': 'manunited',
+    'Manchester City': 'mancity',
+    'Newcastle Utd': 'newcastle',
+    'Nottingham Forest': 'nottinghamforest',
+    'Southampton': 'southampton',
+    'Tottenham Hotspur': 'tottenham',
+    'West Ham Utd': 'westham',
+    'Wolves': 'wolverhampton'
+}
+
+epl_numbering = {i + 1: team for i, team in enumerate(eplteams)}
+
+print("Welcome to Europe Manager!")
+user_name = input("Enter your manager name: ")
+
+league_mapping = {
+    '1': 'Premier League',
+    '2': 'La Liga',
+    '3': 'Bundesliga',
+    '4': 'Ligue 1',
+    '5': 'Serie A'
+}
+
+country_mapping = {
+    'Premier League': 'England',
+    'La Liga': 'Spain',
+    'Bundesliga': 'Germany',
+    'Ligue 1': 'France',
+    'Serie A': 'Italy'
+}
+
+print("\n1. Premier League")
+print("2. La Liga")
+print("3. Bundesliga")
+print("4. Ligue 1")
+print("5. Serie A")
+print("")
+
+while True:
+    league_number = input("Hello " + user_name + "! Choose your League: ")
+    league = league_mapping.get(league_number)
+    if league:
+        selected_country = country_mapping.get(league)
+        if selected_country:
+            print("You have chosen the " + league + ". Welcome to", selected_country + "! ")
+        break
+    else:
+        print("Invalid! Please choose a number between 1 to 5 ")
+
+print("\nLets find you a job. ")
+
+while True:
+    team_selection_choice = input("\n1. Choose your team \n2. Pick a random team for me: ")
+    if team_selection_choice == "1":
+        print(epl_numbering)
+        while True:
+            user_team_number = input("Choose your team: ")
+            if user_team_number:
+                user_team_full = epl_numbering.get(int(user_team_number))
+                if user_team_full:
+                    print(user_team_full + " have chosen " + user_name + " as their new manager! Good Luck!")
+                    break
+                else:
+                    print("Invalid team number. Please choose a valid team number.")
+            else:
+                print("Invalid input. Please choose a valid team number.")
+        break
+    elif team_selection_choice == "2":
+        while True:
+            user_team_full = random.choice(eplteams)
+            if user_team_full in ["Manchester Utd", "Manchester City", "Chelsea",
+                                  "Liverpool", "Arsenal", "Tottenham Hotspur"]:
+                continue
+            else:
+                break
+        if user_team_full:
+            print(user_team_full + " have chosen " + user_name + " as their new manager! Good Luck!")
+            break
+    else:
+        print("Invalid! Please choose 1 or 2")
+
+time.sleep(1.3)
+
+user_team = eplmapping.get(user_team_full)
+
+user_att_rating = epl_ratings[user_team_full][0]
+user_def_rating = epl_ratings[user_team_full][1]
+user_gk_rating = epl_ratings[user_team_full][2]
+
+print("Your ratings: ""\n Attack:", user_att_rating ,"\n Defense:", user_def_rating, '\n Goalkeeping:', user_gk_rating)
+
+input("Press enter to continue")
+
+
+time.sleep(1)
+print(" ")
+
+team_ovrs = {}
+for club in epl_ratings:
+    team_ovr = (epl_ratings[club][0] + epl_ratings[club][1] + epl_ratings[club][2])/3
+    team_ovrs[club] = team_ovr
+
+media_prediction = sorted(team_ovrs.items(), reverse=True, key=lambda x: x[1])
+
+df = pd.DataFrame(media_prediction, columns=['Team', 'Media Rating'])
+df['Position'] = df.index + 1
+df = df[['Position', 'Team', 'Media Rating']]
+pd.set_option('display.float_format', '{:.0f}'.format)
+
+print("\nMedia Prediction:")
+time.sleep(0.7)
+print(df.to_string(index=False))
+
+
+def match(user_team, cpu_team_full):
+    input("Press Enter to play the match ")
+    global home_goals, away_goals
+    global home_name, away_name
+    cpu_team = eplmapping.get(cpu_team_full)
+    stadium = ["home", "away"]
+    location = random.choice(stadium)
+    print("You are playing: " + location)
+
+    if location == 'home':
+        home_team = user_team
+        away_team = cpu_team
+        home_name = user_team_full
+        away_name = cpu_team_full
+    else:
+        home_team = cpu_team
+        away_team = user_team
+        home_name = cpu_team_full
+        away_name = user_team_full
+
+    home_goals = 0
+    away_goals = 0
+
+    print("\nToday's Match: " + home_name + " vs " + away_name)
+
+    home_goals = 0
+    away_goals = 0
+
+    home_att = epl_ratings[home_name][0]
+    home_def = (epl_ratings[home_name][1] + epl_ratings[home_name][2])/2
+    away_att = epl_ratings[away_name][0]
+    away_def = (epl_ratings[away_name][1] + epl_ratings[away_name][2])/2
+
+    home_strength = (home_att + home_def) / 2
+    away_strength = (away_att + away_def) / 2
+
+    var = home_strength - away_strength
+
+    minute = 0
+    
+    for _ in range(90):
+        no_action_prompts = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
+                             "Yellow Card for " + home_name,
+                             "Yellow Card for " + away_name,
+                             " ", " ", " ", " ", " ", " "]
+
+        home_no_goal_prompts = ["Fired over the crossbar!", "Just Wide!",
+                                "Blocked by " + away_name,
+                                "Save by " + away_name, "Stunning save by " + away_name, ]
+        away_no_goal_prompts = ["Fired over the crossbar!", "Just Wide!",
+                                "Blocked by " + home_name,
+                                "Save by " + home_name, "Stunning save by " + home_name]
+        rand_action = random.randint(0, 100)
+        minute += 1
+        print(str(minute) + "' ", )
+
+        if home_goals == 2:
+            home_att -= 1
+        elif home_goals == 3:
+            home_att -= 2
+        elif home_goals == 4:
+            home_att -= 4
+
+        if away_goals == 2:
+            away_att -= 1
+        elif away_goals == 3:
+            away_att -= 2
+        elif away_goals == 4:
+            away_att -= 4
+
+        if rand_action > 85 - (int(var) / 2):
+            print("Shot from " + home_name, )
+            time.sleep(0.3)
+            random_num = random.randint(0, 100)
+
+            skill_diff = home_att - away_def
+
+            if skill_diff > 10:
+                if random_num > 71:
+                    home_goals += 1
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif 7 <= skill_diff <= 10:
+                home_goals += 1
+                if random_num > 74:
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif 4 <= skill_diff <= 6:
+                home_goals += 1
+                if random_num > 77:
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif 1 <= skill_diff <= 3:
+                if random_num > 80:
+                    home_goals += 1
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif -3 <= skill_diff <= 0:
+                if random_num > 83:
+                    home_goals += 1
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif -6 <= skill_diff <= -4:
+                if random_num > 86:
+                    home_goals += 1
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif -10 <= skill_diff <= -7:
+                if random_num > 89:
+                    home_goals += 1
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+            elif skill_diff < -10:
+                if random_num > 92:
+                    home_goals += 1
+                    print("Goal! " + home_name + " Scores!" + str(
+                        home_goals) + '-' + str(away_goals))
+                else:
+                    print(random.choice(list(home_no_goal_prompts)))
+        elif 65 <= rand_action < 85 - (int(var) / 2):
+            print("Shot from " + away_name)
+            time.sleep(0.3)
+            random_num = random.randint(0, 100)
+
+            skill_diff = away_att - home_def
+
+            if skill_diff > 10:
+                if random_num > 71:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif 7 <= skill_diff <= 10:
+                if random_num > 74:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif 4 <= skill_diff <= 6:
+                if random_num > 77:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif 1 <= skill_diff <= 3:
+                if random_num > 80:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif -3 <= skill_diff <= 0:
+                if random_num > 83:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif -6 <= skill_diff <= -4:
+                if random_num > 86:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif -10 <= skill_diff <= -7:
+                if random_num > 89:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+            elif skill_diff < -10:
+                if random_num > 92:
+                    away_goals += 1
+                    print("Goal! " + away_name + " Scores!" + str(
+                        home_goals) + '-' + str(
+                        away_goals))
+                else:
+                    print(random.choice(list(away_no_goal_prompts)))
+        else:
+            print(random.choice(list(no_action_prompts)))
+        time.sleep(0.7)
+    print("FULL TIME")
+    print('Final Score: ' + str(home_goals) + '-' + str(away_goals))
+
+    if home_goals > away_goals:
+        print(home_name + "Wins")
+    elif away_goals > home_goals:
+        print(away_name + "Wins")
+    else:
+        print("Draw")
+
+points_table = {team: 0 for team in eplteams}
+input("Press Enter to start the League")
+
+for i in range(len(eplteams)-1):
+    for j in range(i+1, len(eplteams)):
+        user_team = eplteams[i]
+        cpu_team = eplteams[j]
+        match(user_team, cpu_team)
+        print()  # Add an empty line between matches
+
+        # Update the points table based on the match result
+        if home_goals > away_goals:
+            points_table[home_name] += 3  # Home team wins
+        elif away_goals > home_goals:
+            points_table[away_name] += 3  # Away team wins
+        else:
+            points_table[home_name] += 1  # Draw
+            points_table[away_name] += 1
+        time.sleep(1.3)
+
+        print("Points Table")
+        print("------------")
+        print("{:<20} {:<10}".format("Team", "Points"))
+        print("---------------------------")
+        for team, points in points_table.items():
+            print("{:<20} {:<10}".format(team, points))
+        time.sleep(1.5)
+
+# Print the points table
+print("Points Table")
+print("------------")
+print("{:<20} {:<10}".format("Team", "Points"))
+print("---------------------------")
+for team, points in points_table.items():
+    print("{:<20} {:<10}".format(team, points))
+
+
